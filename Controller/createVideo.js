@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const id = 10000
+let id = 10000
 const uploadPath = process.cwd() + '/../uploads/' + id + '.mp4'
 
 exports.createVideo = async (req, res) => {
