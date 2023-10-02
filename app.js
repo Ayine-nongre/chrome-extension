@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const concat = require('ffmpeg-concat')
 const { Readable } = require('stream')
 const { spawn } = require('child_process')
+const { Deepgram } = require('@deepgram/sdk')
 
 const app = express()
 
@@ -25,6 +26,7 @@ app.use(cors(corsOpts))
 app.use(express.raw({type: "*/*",  limit: 25 * 1024 * 1024}))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+const deepgram = new Deepgram(process.env.Auth)
 
 const uploadPath = process.cwd() + "/uploads/"
 let id = 10000
