@@ -6,9 +6,6 @@ const concat = require('ffmpeg-concat')
 const { Readable } = require('stream')
 const { spawn } = require('child_process')
 
-
-
-
 const app = express()
 
 const corsOpts = {
@@ -71,7 +68,7 @@ app.post('/api/record/:id', async (req, res) => {
     }
 })
 
-app.get('/api/video/:id', (req, res) => {
+app.get('/api/video/:id', async (req, res) => {
     const filename = req.params.id + '.mp4'
     if (arrayBuff.length != 0) {
         const complete = Buffer.concat(arrayBuff)
@@ -80,8 +77,23 @@ app.get('/api/video/:id', (req, res) => {
       console.log("No video chunks")
       res.status(404).json({ status:"Failed", message: "Video chunks not received" })
     }
+
+    const response = await deepgram.transcription.preRecorded(
+        { url: "https://extension-64nm.onrender.com/api/play/" + filename },
+        { punctuate: true, utterances: true }
+    ).catch(err => {
+        console.log(err)
+        return res.status(400).json({ status: "Failed", message: "Error getting tran"})
+    })
+
+  const srtTranscript = response.toSRT();
     
-    res.status(200).json({ status: "Success", message: "File uploaded successfully", video_url: "https://extension-64nm.onrender.com/api/play/" + filename})
+    res.status(200).json({ 
+      status: "Success", 
+      message: "File uploaded successfully", 
+      video_url: "https://extension-64nm.onrender.com/api/play/" + filename,
+      "transcript": srtTranscript
+    })
 })
 
 app.listen(5000 || process.env.PORT, () => {
